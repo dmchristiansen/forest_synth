@@ -1,0 +1,23 @@
+
+I need to make some decisions regarding
+
+
+TO DO:
+
+- Set up git repo (DO THIS FIRST!)
+
+- Add event queue (DO THIS SECOND!)
+The audio generation shouldn't be done inside an interrupt. It works now, but as it gets more complex it will be a problem.
+The audio callback routine should just pass the waiting audio buffer to pyAudio, and add a a task to the queue to fill the next buffer.
+
+- Figure out sound generation strategy
+Can there be recursive connections between audio modules?
+
+- Create audio module patch interface
+There needs to be a way for me to easily string together signal processing paths
+
+- Create sequencer -> audio engine interface
+This will likely end up having inputs from the global state block
+There should be an object that has values that various audio modules are using as input,
+and the sequencer and global state block will send outputs 
+
