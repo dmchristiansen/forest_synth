@@ -4,7 +4,7 @@ I need to make some decisions regarding
 
 TO DO:
 
-- Set up git repo (DO THIS FIRST!)
+x Set up git repo (DO THIS FIRST!)
 
 - Add event queue (DO THIS SECOND!)
 The audio generation shouldn't be done inside an interrupt. It works now, but as it gets more complex it will be a problem.

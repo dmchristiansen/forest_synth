@@ -12,7 +12,7 @@ import pyaudio
 import numpy as np
 import global_settings
 import audio_modules
-
+import buffer
 
 
 
@@ -24,10 +24,13 @@ class SynthVoice:
 
 class AudioEngine:
     
-    def __init__(self):
+    def __init__(self, queue_):
         self.stream = None
         self.voices = []
         self.voice_count = 0
+        self.queue = queue_
+        
+        self.buffer = buffer.Buffer(global_settings.AUDIO_BUFFER_COUNT)
         
         self.add_voice(
             audio_modules.AudioGenerator(
@@ -35,6 +38,8 @@ class AudioEngine:
                 freq_=440
             )
         )
+
+
 
         self.add_voice(
             audio_modules.AudioGenerator(
@@ -50,29 +55,23 @@ class AudioEngine:
             format=pyaudio.paInt16,
             output=True,
             frames_per_buffer=global_settings.BUFFER_SIZE,
-            stream_callback=self.get_samples_callback
+            stream_callback=self.audio_buffer_callback
         )
 
     def close(self):
         self.stream.close()
 
     def get_samples(self, num_samples=global_settings.BUFFER_SIZE):
-        premix_data = np.array([voice.generate_samples(num_samples) for voice in self.voices])
-        return premix_data.sum()
-
-    def get_samples_callback(self, input_data, frame_count, time_info, status_flags):
-        #premix_data = np.array([voice.generate_samples(frame_count) for voice in self.voices])
-        osc_data = np.array(self.voices[0].generate_samples(frame_count))
-        lfo_data = np.array(self.voices[1].generate_samples(frame_count)) + 1
-        #print(osc_data)
-        #print(lfo_data)
+        osc_data = np.array(self.voices[0].generate_samples(global_settings.BUFFER_SIZE))
+        lfo_data = np.array(self.voices[1].generate_samples(global_settings.BUFFER_SIZE)) + 1
         data = osc_data * lfo_data
-        #print(data)
         data = np.int16(data.clip(-0.8, 0.8) * 32767)
-        #print("\n")
-        #print("\ndata dimensions: " + str(data.shape))
-        #print(data)
-        return (data, pyaudio.paContinue)
+        self.buffer.fill_buffer(data)
+        return
+
+    def audio_buffer_callback(self, input_data, frame_count, time_info, status_flags):
+        self.queue.put("GET_SAMPLES")
+        return (self.buffer.get_buffer(), pyaudio.paContinue)
 
     def add_voice(self, module):
         self.voices.append(module)
