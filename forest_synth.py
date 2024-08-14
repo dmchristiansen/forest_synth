@@ -27,11 +27,9 @@ try:
     while True:
         if task_queue.empty() is False:
             task = task_queue.get()
-            if task is not None:
-                match task:
-                    case "GET_SAMPLES":
-                        print("\nCalling 'get samples'")
-                        ae.get_samples()                        
+            match task:
+                case "GET_SAMPLES":
+                    ae.get_samples()                        
 
        
 

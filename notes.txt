@@ -6,12 +6,14 @@ TO DO:
 
 x Set up git repo (DO THIS FIRST!)
 
-- Add event queue (DO THIS SECOND!)
+x Add event queue (DO THIS SECOND!)
 The audio generation shouldn't be done inside an interrupt. It works now, but as it gets more complex it will be a problem.
 The audio callback routine should just pass the waiting audio buffer to pyAudio, and add a a task to the queue to fill the next buffer.
 
 - Figure out sound generation strategy
 Can there be recursive connections between audio modules?
+I need to decide the scope of what this should be able to do. I don't want it to become so complicated that I basically reeimplement VCV Rack 
+If I want that, I can just have that running and patch into it. I should look into doing that actually
 
 - Create audio module patch interface
 There needs to be a way for me to easily string together signal processing paths
