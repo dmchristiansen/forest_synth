@@ -12,6 +12,7 @@ import pyaudio
 import numpy as np
 import global_settings
 import audio_modules
+import global_state
 import buffer
 
 
@@ -24,29 +25,15 @@ class SynthVoice:
 
 class AudioEngine:
     
-    def __init__(self, queue_):
+    def __init__(self, queue_, global_state_):
         self.stream = None
         self.voices = []
         self.voice_count = 0
         self.queue = queue_
+        self.state = global_state_
+        self.audio_output = None
         
         self.buffer = buffer.Buffer(global_settings.AUDIO_BUFFER_COUNT)
-        
-        self.add_voice(
-            audio_modules.AudioGenerator(
-                wave_table_gen_fn_=audio_modules.get_sin_oscillator,
-                freq_=440
-            )
-        )
-
-
-
-        self.add_voice(
-            audio_modules.AudioGenerator(
-                wave_table_gen_fn_=audio_modules.get_sin_oscillator,
-                freq_=5
-            )
-        )
 
     def start(self):
         self.stream = pyaudio.PyAudio().open(
@@ -62,13 +49,11 @@ class AudioEngine:
         self.stream.close()
 
     def get_samples(self, num_samples=global_settings.BUFFER_SIZE):
-        osc_data = np.array(self.voices[0].generate_samples(global_settings.BUFFER_SIZE))
-        lfo_data = np.array(self.voices[1].generate_samples(global_settings.BUFFER_SIZE)) + 1
-        data = osc_data * lfo_data
+        data = self.audio_output(num_samples)
         data = np.int16(data.clip(-0.8, 0.8) * 32767)
         self.buffer.fill_buffer(data)
         return
-
+    
     def audio_buffer_callback(self, input_data, frame_count, time_info, status_flags):
         self.queue.put("GET_SAMPLES")
         return (self.buffer.get_buffer(), pyaudio.paContinue)
@@ -76,4 +61,5 @@ class AudioEngine:
     def add_voice(self, module):
         self.voices.append(module)
         self.voice_count += 1
+        return self.voices[-1].generate_samples
 

@@ -22,4 +22,34 @@ There needs to be a way for me to easily string together signal processing paths
 This will likely end up having inputs from the global state block
 There should be an object that has values that various audio modules are using as input,
 and the sequencer and global state block will send outputs 
+I will need to figure out how locks work in python
+
+x Fix popping issue with audio engine
+x Add VCA
+- Add ADSR
+For the wavetable generation, what are the bounds that I want?
+attack - fom very quick to ~1 second (higher is slower)
+decay - from very quick to ~0.5 second (higher is slower)
+sustain - multiply by value (no negative values, [0, 1])
+release - from very quick to ~4 seconds (higher is longer)
+Maybe log of value for release?
+
+Attack
+from 0 -> 1 over some seconds. for now, seconds = attack input
+find number of samples
+total samples = sample_rate * seconds
+amp = index
+index += 1 / (sample rate * seconds)
+
+Decay
+from attack -> sustain
+total samples = seconds * sample rate = (decay * sample rate) / 2
+
+Release
+from sustain -> 0 over up to 2 seconds
+
+
+- Connect sequencer to audio engine
+- Add multiple tracks/voices
+- Add GUI interface to stand in for sensor devices
 
