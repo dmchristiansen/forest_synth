@@ -66,7 +66,7 @@ class Sequencer:
 
 
     def start(self):
-        print("\nTimer set to " + str(60/self.bpm))
+        #print("\nTimer set to " + str(60/self.bpm))
         self.is_active = True
         self.timer = Timer(60/self.bpm, self.step_callback)
         self.timer.start()

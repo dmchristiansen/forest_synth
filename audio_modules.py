@@ -51,7 +51,7 @@ class ADSR:
     def __init__(self, gate_input_=None):
         self.gate_input = gate_input_
         self.state = "IDLE"
-        self.attack = 0.3
+        self.attack = 0.1
         self.decay = 0.1
         self.sustain = 0.8
         self.release = 0.4

@@ -4,6 +4,11 @@ import audio_modules
 import audio_engine
 import queue
 import global_state
+import pyaudio
+import timeit
+import time
+
+print("pyaudio version:" + pyaudio.__version__)
 
 state = global_state.GlobalState()
 
@@ -40,10 +45,11 @@ print(seq)
 # Initialize audio engine & construct synth voices
 ae = audio_engine.AudioEngine(task_queue, state)
 
+
 osc_signal = ae.add_voice(
     audio_modules.AudioGenerator(
         wave_table_gen_fn_=audio_modules.get_sin_oscillator,
-        freq_=440
+        freq_=220
     )
 )
 
@@ -53,14 +59,12 @@ lfo_signal = ae.add_voice(
         freq_=10
     )
 )
-
 vca1_signal = ae.add_voice(
     audio_modules.VCA(
         audio_input_=osc_signal,
         control_input_=lfo_signal
     )
 )
-
 pulse_gen = audio_modules.PulseGenerator(
     pulse_length_=0.25,
 )
@@ -81,6 +85,19 @@ ae.audio_output = ae.add_voice(
 )
 
 print(ae.buffer.buffer[0])
+"""
+def test_code():
+    ae.get_samples()
+
+
+#time = timeit.timeit(test_code)
+start = time.time()
+ae.get_samples()
+end = time.time()
+
+print("get_samples time(ms): ")
+print((end-start)*1000)
+"""
 
 for _ in range(global_settings.AUDIO_BUFFER_COUNT - 1):
     ae.get_samples()
